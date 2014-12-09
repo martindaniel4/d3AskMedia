@@ -3,7 +3,7 @@
 
 <head>
 
-	<script type="text/javascript" src="../src/d3.js"></script>
+	<script type="text/javascript" src="../../src/d3.js"></script>
 
 <style>
 
@@ -16,13 +16,33 @@
 
 	<script type="text/javascript">
 
+  var data,
+    final = {};
+
 d3.csv("../sets/lyceeFR.csv",function(csv) {
+
+  data = csv;
 
 //Quelle est la moyenne du taux de réussite de tous les lycées français ?
  
 //Quelle est la moyenne du taux de réussite par type de lycée (Public / Privé) ? 
 
 //Quelle est la moyenne du taux de réussite par ville ? 
+
+  var total = d3.nest()
+  .key(function(d) {return d.type;})
+  .rollup(function(e) {return d3.sum(e, function(f) {return parseFloat(f.effectif);})})
+    .map(data);
+  
+  var pondere = d3.nest()
+  .key(function(d) {return d.type;})
+  .rollup(function(e) {return d3.sum(e, function(f) {return parseFloat(f.effectif) * (parseFloat(f.success)/100); });})
+  .map(data)
+    
+    Object.keys(pondere)
+      .forEach(function(d) {
+        return final[d.key] = pondere[d.key]/total[d.key];
+      })
 
 
 });
